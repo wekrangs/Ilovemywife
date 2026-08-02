@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เครื่องมือคำนวณหุ่นสวยฉบับครอบครัว</title>
+    <style>
+        :root {
+            --primary: #FF69B4;
+            --secondary: #87CEFA;
+            --bg: #FFF0F5;
+            --text: #333;
+        }
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            max-width: 450px;
+            width: 100%;
+        }
+        h2 {
+            text-align: center;
+            color: #FF1493;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #FFE4E1;
+            border-radius: 10px;
+            box-sizing: border-box;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        input:focus, select:focus {
+            border-color: var(--primary);
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.1s, background 0.3s;
+            margin-top: 15px;
+        }
+        button:active {
+            transform: scale(0.98);
+        }
+        button:hover {
+            background-color: #FF1493;
+        }
+        .greeting-box {
+            text-align: center;
+            margin: 15px 0;
+            padding: 10px;
+            border-radius: 10px;
+            display: none;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+        .greeting-female {
+            background-color: #FFF0F5;
+            color: #FF1493;
+            border: 1px dashed #FF69B4;
+        }
+        .greeting-male {
+            background-color: #F0F8FF;
+            color: #4682B4;
+            border: 1px dashed #87CEFA;
+        }
+        .result-box {
+            display: none;
+            margin-top: 25px;
+            padding: 20px;
+            background-color: #F5FFFA;
+            border: 2px solid #3CB371;
+            border-radius: 15px;
+        }
+        .highlight {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #E21B70;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>โปรแกรมของผัว สร้างให้เมีย 💖</h2>
+    
+    <div class="form-group">
+        <label>ก่อนอื่น... ขอทราบเพศก่อนนะ</label>
+        <select id="gender" onchange="checkGender()">
+            <option value="">-- เลือกเพศ --</option>
+            <option value="female">ผู้หญิง (เมียเค้าเอง)</option>
+            <option value="male">ผู้ชาย (คนอื่น)</option>
+        </select>
+    </div>
+
+    <!-- กล่องข้อความทักทายที่จะเปลี่ยนไปตามเพศ -->
+    <div id="greetingBox" class="greeting-box"></div>
+
+    <div id="calculatorForm" style="display: none;">
+        <div class="form-group">
+            <label>อายุ (ปี)</label>
+            <input type="number" id="age" placeholder="ใส่ตัวเลขลงไปเลยจ้า">
+        </div>
+        <div class="form-group">
+            <label>ส่วนสูง (ซม.)</label>
+            <input type="number" id="height" placeholder="สูงเท่าไหร่เอ่ย?">
+        </div>
+        <div class="form-group">
+            <label>น้ำหนักปัจจุบัน (กก.)</label>
+            <input type="number" id="weight" placeholder="ไม่ต้องเขินนะ ผัวไม่บอกใคร">
+        </div>
+        <div class="form-group">
+            <label>การขยับตัวในแต่ละวัน</label>
+            <select id="activity">
+                <option value="1.2">นั่งๆ นอนๆ เป็นหลัก ไม่ค่อยออกกำลังกาย</option>
+                <option value="1.375">ขยับตัวนิดหน่อย / ออกกำลังกาย 1-3 วัน/วีค</option>
+                <option value="1.55">ออกกำลังกายปานกลาง 3-5 วัน/วีค</option>
+                <option value="1.725">ฟิตจัด! ออกกำลังกายหนัก 6-7 วัน/วีค</option>
+            </select>
+        </div>
+
+        <button onclick="calculate()">ให้ผัวคำนวณให้เลย!</button>
+    </div>
+
+    <div class="result-box" id="resultBox">
+        <p>📊 <b>BMI (ดัชนีมวลกาย):</b> <span id="bmiResult" class="highlight"></span></p>
+        <p>🔥 <b>BMR (ระบบเผาผลาญพื้นฐาน):</b> <span id="bmrResult"></span> แคลอรี่/วัน</p>
+        <p>🏃 <b>TDEE (เผาผลาญรวมกิจกรรม):</b> <span id="tdeeResult" class="highlight"></span> แคลอรี่/วัน</p>
+        <hr>
+        <div id="recommendationText"></div>
+    </div>
+</div>
+
+<script>
+    function checkGender() {
+        const gender = document.getElementById('gender').value;
+        const greetingBox = document.getElementById('greetingBox');
+        const form = document.getElementById('calculatorForm');
+        const resultBox = document.getElementById('resultBox');
+
+        // รีเซ็ตผลลัพธ์ทุกครั้งที่เปลี่ยนเพศ
+        resultBox.style.display = 'none';
+
+        if (gender === 'female') {
+            greetingBox.className = 'greeting-box greeting-female';
+            greetingBox.innerHTML = '✨ สะบายดีจ้าเมียสุดที่รัก ✨';
+            greetingBox.style.display = 'block';
+            form.style.display = 'block';
+        } else if (gender === 'male') {
+            greetingBox.className = 'greeting-box greeting-male';
+            greetingBox.innerHTML = 'อ้าว... คุณบ่เเม่นเวียงเงินนี่นา 😅';
+            greetingBox.style.display = 'block';
+            form.style.display = 'block';
+        } else {
+            greetingBox.style.display = 'none';
+            form.style.display = 'none';
+        }
+    }
+
+    function calculate() {
+        const gender = document.getElementById('gender').value;
+        const age = parseFloat(document.getElementById('age').value);
+        const height = parseFloat(document.getElementById('height').value);
+        const weight = parseFloat(document.getElementById('weight').value);
+        const activity = parseFloat(document.getElementById('activity').value);
+
+        if (!age || !height || !weight) {
+            alert('กรอกข้อมูลให้ครบก่อนสิเตง!');
+            return;
+        }
+
+        // 1. หา BMI
+        const heightInMeter = height / 100;
+        const bmi = weight / (heightInMeter * heightInMeter);
+
+        // 2. หา BMR (Mifflin-St Jeor Equation)
+        let bmr = (10 * weight) + (6.25 * height) - (5 * age);
+        
+        if (gender === 'male') {
+            bmr += 5; // สูตรผู้ชาย
+        } else {
+            bmr -= 161; // สูตรผู้หญิง
+        }
+
+        // 3. หา TDEE
+        const tdee = bmr * activity;
+
+        // 4. เป้าหมายลดน้ำหนัก (Deficit 400 kcal)
+        let targetCal = tdee - 400;
+        
+        // เซฟตี้: ไม่ควรทานต่ำกว่า BMR มากเกินไป
+        if (gender === 'female' && targetCal < 1200) targetCal = 1200;
+        if (gender === 'male' && targetCal < 1500) targetCal = 1500;
+
+        // แสดงผลตัวเลข
+        document.getElementById('bmiResult').innerText = bmi.toFixed(1);
+        document.getElementById('bmrResult').innerText = Math.round(bmr);
+        document.getElementById('tdeeResult').innerText = Math.round(tdee);
+
+        // แสดงคำแนะนำตามเพศ
+        const recBox = document.getElementById('recommendationText');
+        if (gender === 'female') {
+            recBox.innerHTML = `🎯 <b>คำแนะนำจากผัว:</b><br>
+            เมียจ๋า... ถ้าอยากลดน้ำหนักแบบหุ่นเป๊ะ ไม่ย้วย <br>
+            พยายามกินให้ได้วันละ <span class="highlight" style="color:#FF1493;">${Math.round(targetCal)}</span> แคลอรี่นะจ๊ะ <br>
+            รักเมียนะ สู้ๆ! 💕`;
+        } else {
+            recBox.innerHTML = `🎯 <b>คำแนะนำการลดน้ำหนัก:</b><br>
+            เพื่อการลดน้ำหนักที่ปลอดภัย ควรควบคุมอาหารให้อยู่ที่ <br>
+            <span class="highlight" style="color:#4682B4;">${Math.round(targetCal)}</span> แคลอรี่/วัน ครับผม!`;
+        }
+
+        document.getElementById('resultBox').style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
